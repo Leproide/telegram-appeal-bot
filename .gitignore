@@ -1,0 +1,20 @@
+# Telegram Appeal Bot
+# Author: https://github.com/Leproide
+# License: GPL-3.0
+
+# Segreti e dati locali
+.env
+*.db
+*.db-journal
+*.db.bak
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.venv/
+
+# Editor / OS
+.vscode/
+.idea/
+.DS_Store

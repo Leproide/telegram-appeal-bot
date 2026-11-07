@@ -1,0 +1,5 @@
+# Telegram Appeal Bot - dipendenze
+# Author: https://github.com/Leproide
+# License: GPL-3.0
+python-telegram-bot>=21,<23
+python-dotenv>=1.0

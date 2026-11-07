@@ -1,0 +1,34 @@
+# Telegram Appeal Bot - unit systemd
+# Author: https://github.com/Leproide
+# License: GPL-3.0
+#
+# Adatta i percorsi se non usi /opt/telegram-appeal-bot, poi:
+#   cp telegram-appeal-bot.service /etc/systemd/system/
+#   systemctl daemon-reload && systemctl enable --now telegram-appeal-bot
+# Log:
+#   journalctl -u telegram-appeal-bot -f
+
+[Unit]
+Description=Telegram Appeal Bot (appelli di sban)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/telegram-appeal-bot
+# Con virtualenv: /opt/telegram-appeal-bot/venv/bin/python
+ExecStart=/usr/bin/python3 /opt/telegram-appeal-bot/bot.py
+Environment=TZ=Europe/Rome
+Environment=PYTHONUNBUFFERED=1
+Restart=on-failure
+RestartSec=5
+
+# Hardening: filesystem in sola lettura tranne la cartella del bot (database)
+NoNewPrivileges=true
+PrivateTmp=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/opt/telegram-appeal-bot
+
+[Install]
+WantedBy=multi-user.target
