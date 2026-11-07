@@ -1,34 +1,51 @@
-# Telegram Appeal Bot - unit systemd
+# Telegram Appeal Bot - systemd unit
 # Author: https://github.com/Leproide
 # License: GPL-3.0
 #
-# Adatta i percorsi se non usi /opt/telegram-appeal-bot, poi:
+# Layout:
+#   /opt/telegram-appeal-bot          code + venv (owned by root, read-only for the bot)
+#   /opt/telegram-appeal-bot/.env     configuration (root:appealbot, mode 640)
+#   /var/lib/telegram-appeal-bot      database (created by systemd, owned by appealbot)
+#
+# Install:
 #   cp telegram-appeal-bot.service /etc/systemd/system/
 #   systemctl daemon-reload && systemctl enable --now telegram-appeal-bot
-# Log:
+# Logs:
 #   journalctl -u telegram-appeal-bot -f
 
 [Unit]
-Description=Telegram Appeal Bot (appelli di sban)
+Description=Telegram Appeal Bot (unban appeals)
 After=network-online.target
 Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=/opt/telegram-appeal-bot
-# Con virtualenv: /opt/telegram-appeal-bot/venv/bin/python
-ExecStart=/usr/bin/python3 /opt/telegram-appeal-bot/bot.py
+User=appealbot
+Group=appealbot
+# Creates /var/lib/telegram-appeal-bot owned by appealbot; the database
+# (DB_PATH=appeals.db, relative) is stored there
+StateDirectory=telegram-appeal-bot
+StateDirectoryMode=0750
+WorkingDirectory=/var/lib/telegram-appeal-bot
+ExecStart=/opt/telegram-appeal-bot/venv/bin/python /opt/telegram-appeal-bot/bot.py
 Environment=TZ=Europe/Rome
 Environment=PYTHONUNBUFFERED=1
 Restart=on-failure
 RestartSec=5
 
-# Hardening: filesystem in sola lettura tranne la cartella del bot (database)
+# Hardening
 NoNewPrivileges=true
 PrivateTmp=true
+PrivateDevices=true
 ProtectSystem=strict
 ProtectHome=true
-ReadWritePaths=/opt/telegram-appeal-bot
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+LockPersonality=true
+UMask=0077
 
 [Install]
 WantedBy=multi-user.target

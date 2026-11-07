@@ -11,7 +11,7 @@ Testo da pubblicare nel gruppo (sostituisci `@NomeDelBot`).
 ```text
 📢 DISPONIBILE IL BOT PER GLI APPELLI DI RIAMMISSIONE
 
-Se conoscete qualcuno che è stato bannato per errore, da oggi può chiedere lo sban tramite il nostro bot: @NomeDelBot
+Da oggi può chiedere lo sban tramite il nostro bot: @NomeDelBot
 
 Come funziona:
 1. Avviate il bot e seguite le istruzioni a schermo.

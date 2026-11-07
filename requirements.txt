@@ -1,4 +1,4 @@
-# Telegram Appeal Bot - dipendenze
+# Telegram Appeal Bot - dependencies
 # Author: https://github.com/Leproide
 # License: GPL-3.0
 python-telegram-bot>=21,<23
