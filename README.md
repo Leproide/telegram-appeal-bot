@@ -12,6 +12,7 @@ No more appeals scattered across other platforms where nobody reads them.
 
 - **Guided form** in private chat, with a summary and confirmation before sending:
   - the user's account (username and ID) is detected automatically and shown on screen, so nobody can appeal on behalf of someone else;
+  - a public **@username is required**: users without one are asked to set it and start again;
   - approximate date and time of the ban;
   - reason for the ban (optional, `/skip`);
   - free comment.

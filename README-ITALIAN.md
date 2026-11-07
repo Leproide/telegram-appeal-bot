@@ -12,6 +12,7 @@ Basta appelli dispersi su altre piattaforme che nessuno legge.
 
 - **Modulo guidato** in chat privata, con riepilogo e conferma prima dell'invio:
   - account dell'utente (username e ID) rilevato automaticamente e mostrato a schermo, così nessuno può fare appello per conto di altri;
+  - **username obbligatorio**: chi non ne ha uno viene invitato a impostarlo e a ricominciare;
   - data e ora indicativa del ban;
   - causa del ban (facoltativa, `/salta`);
   - commento libero.

@@ -21,6 +21,7 @@ Telegram bot to handle unban appeals for a group.
 
 - Users write to the bot in private (/start) and fill in a guided appeal.
   The account (username/ID) is taken automatically: nobody can appeal for others.
+  A public @username is required to submit an appeal.
 - Only one pending appeal per user (also enforced by the database).
 - Appeals are posted to an admin group with Approve / Deny / Deny & block buttons.
   Denials accept an optional reason that is forwarded to the user.
@@ -132,13 +133,17 @@ STRINGS = {
         ),
         "start": (
             "Hi! Here you can submit an appeal to be unbanned from the group.\n\n"
-            "👤 Account: {account}{no_username}\n"
+            "👤 Account: {account}\n"
             "🆔 ID: <code>{uid}</code>\n"
             "The appeal applies only to this Telegram account.\n"
             "You can cancel at any time with /cancel.\n\n"
             "Step 1/3 — Approximate date and time of the ban (e.g. 2026-11-05 evening)."
         ),
-        "no_username": " (no username set)",
+        "username_required": (
+            "To submit an appeal your Telegram account needs a public <b>username</b>.\n\n"
+            "Set one in Telegram: <i>Settings → Edit profile → Username</i>, "
+            "then start again with /start."
+        ),
         "ask_cause": "Step 2/3 — Reason for the ban (optional).\nType it or send /skip.",
         "ask_comment": "Step 3/3 — Free comment: explain why you should be unbanned.",
         "empty_field": "This field cannot be empty, please try again.",
@@ -260,13 +265,17 @@ STRINGS = {
         ),
         "start": (
             "Ciao! Qui puoi inviare un appello per lo sban dal gruppo.\n\n"
-            "👤 Account: {account}{no_username}\n"
+            "👤 Account: {account}\n"
             "🆔 ID: <code>{uid}</code>\n"
             "L'appello vale solo per questo account Telegram.\n"
             "Puoi annullare in qualsiasi momento con /annulla.\n\n"
             "Passo 1/3 — Data e ora indicativa del ban (es. 05/11/2026 sera)."
         ),
-        "no_username": " (nessun username impostato)",
+        "username_required": (
+            "Per inviare un appello il tuo account Telegram deve avere un <b>username</b> pubblico.\n\n"
+            "Impostalo da Telegram: <i>Impostazioni → Modifica profilo → Username</i>, "
+            "poi ricomincia con /start."
+        ),
         "ask_cause": "Passo 2/3 — Causa del ban (opzionale).\nScrivila oppure invia /salta.",
         "ask_comment": "Passo 3/3 — Commento libero: spiega perché dovresti essere sbannato.",
         "empty_field": "Il campo non può essere vuoto, riprova.",
@@ -686,6 +695,13 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         )
         return ConversationHandler.END
 
+    # A public username is required (easier identification for the admins)
+    if not user.username:
+        await update.message.reply_text(
+            t("username_required"), parse_mode=ParseMode.HTML, reply_markup=ReplyKeyboardRemove()
+        )
+        return ConversationHandler.END
+
     context.user_data.clear()
     # The account comes from Telegram and cannot be changed by the user
     context.user_data["nickname"] = user_plain(user.username, user.full_name)
@@ -693,7 +709,6 @@ async def cmd_start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int:
         t(
             "start",
             account=user_label(user.id, user.username, user.full_name),
-            no_username="" if user.username else t("no_username"),
             uid=user.id,
         ),
         parse_mode=ParseMode.HTML,
@@ -755,6 +770,12 @@ async def send_appeal(update: Update, context: ContextTypes.DEFAULT_TYPE) -> int
     # Re-check: the state may have changed while the user was typing
     if is_blocked(user.id):
         await update.message.reply_text(t("blocked"), reply_markup=ReplyKeyboardRemove())
+        return ConversationHandler.END
+    if not user.username:
+        ud.clear()
+        await update.message.reply_text(
+            t("username_required"), parse_mode=ParseMode.HTML, reply_markup=ReplyKeyboardRemove()
+        )
         return ConversationHandler.END
     if not all(k in ud for k in ("nickname", "ban_datetime", "comment")):
         await update.message.reply_text(
